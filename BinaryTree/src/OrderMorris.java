@@ -26,11 +26,13 @@ public class OrderMorris implements TraversalTreeMethod{
                     mostRight = mostRight.right;
                 }
                 // setup back point
+                // This is the first time visiting cur node
                 if (mostRight.right == null) {
                     mostRight.right = cur;
                     cur = cur.left;
                 }
                 // recover
+                // This is the second time visiting cur node
                 else if (mostRight.right == cur) {
                     cur = cur.right;
                     mostRight.right = null;

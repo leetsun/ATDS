@@ -64,7 +64,7 @@ public class Main {
         Node lbst = head;
         System.out.println("\nThe left BST tree:");
         track.inOrder(lbst);
-        head = new Node(8); // 10
+        head = new Node(10); // 10
         System.out.print("\nThe head node: " + head.value);
         int arr1[] = {12, 15, 16, 20, 21, 22, 23, 24, 25};
         Node rbst = new Node(arr1[0]);
@@ -77,6 +77,21 @@ public class Main {
         BinaryTreeOperations.MaxBST maxBST = opts.getMaxBST(head);
         System.out.println("\nThe max BST tree:");
         track.inOrder(maxBST.head);
+        System.out.print("\nThe max BST tree size: " + maxBST.treeSize);
+        System.out.print("\nThe max value: " + maxBST.maxValue + "\n The min value: " + maxBST.minValue);
+
+        // find max topology BST
+        int maxTopoSize = opts.maxTopoTreeSize(head);
+        System.out.print("\nThe max topology BST size: " + maxTopoSize);
+
+        // isBalancedTree
+          //setup
+        int[] arr2 = {5, 3, 6, 8, 9};
+        Node tree = new Node(arr2[0]);
+        tree = tree.genBinarySortTree(arr2);
+        TreeOperations treeOpts = new TreeOperations();
+        boolean res = treeOpts.isBalancedTree(tree);
+        System.out.print("\nThe tree is balanced tree: " + res);
 
     }
 }

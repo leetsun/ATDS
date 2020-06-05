@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.util.HashMap;
+import java.util.Stack;
 
 public class BinaryTreeOperations {
     /*
@@ -90,11 +91,12 @@ public class BinaryTreeOperations {
         if (head.right != null) {
             rightMaxBST = getMaxBST(head.right);
         }
+        // base case
         if (leftMaxBST.head == head.left && rightMaxBST.head == head.right
                 && head.value >= leftMaxBST.maxValue && head.value <= rightMaxBST.minValue) {
             maxBST = new MaxBST(
                     head,
-                    Math.max(leftMaxBST.treeSize, rightMaxBST.treeSize) + 1,
+                    leftMaxBST.treeSize + rightMaxBST.treeSize + 1,
                     // update minValue and maxValue in left&rightBST
                     Math.max(head.value, rightMaxBST.maxValue),
                     Math.min(head.value, leftMaxBST.minValue)
@@ -105,4 +107,113 @@ public class BinaryTreeOperations {
 
         return maxBST;
     }
+
+    /*
+    func: get max topology BST's size
+    condition: Nodes have no same value.
+    method: compute and record topology contribution of every node recursively
+    steps: posOrder
+    1. collect left and right tree's topo contribution
+    2. compute and record current node's left and right tree topo contribution(This is base case for recursion)
+    3. update and return max topo contribution
+     */
+    public class Record {
+        public int l;  // left child tree's topo contribution (number in child tree)
+        public int r;  // right tree's topo contribution
+
+        public Record(int left, int right) {
+            this.l = left;
+            this.r = right;
+        }
+    }
+
+    public int maxTopoTreeSize(Node head) {
+        // setup
+        HashMap<Node, Record> map = new HashMap<>();
+        // get
+        return process(head, map);
+    }
+
+    // recursive function
+    /*
+    func: record each node's topo contribution in tree including head
+    return max topo contribution size
+     */
+    public int process(Node head, HashMap<Node, Record> map) {
+       // setup and initialize
+        if (head == null) {
+            return 0;
+        }
+        // collect and save in var temperarily
+        int lr = process(head.left, map);
+        int rr = process(head.right, map);
+
+        // base case: compute current node and update
+        modify(head.left, head.value, map, true);
+        modify(head.right, head.value, map, false);
+        Record lbst = map.get(head.left);
+        Record rbst = map.get(head.right);
+        int lTopoSize = (lbst == null)? 0 : lbst.l + lbst.r + 1;
+        int rTopoSize = (rbst == null) ? 0 : rbst.l + rbst.r + 1;
+        Record topoCon = new Record(lTopoSize, rTopoSize);
+        map.put(head, topoCon);
+        // update
+        return Math.max(topoCon.l + topoCon.r + 1, Math.max(lr, rr));
+    }
+
+    /*
+    func: update map record according to parent's value
+    param:
+    head: current node
+    pValue: parent node's value
+    direction: true--the head is the left tree of its parent, otherwise is the right
+    steps:
+    if direction == left
+    1. track through head's right edge, to find which node's value is bigger than pValue.
+    Noting that the BST is broken.
+    2. Update topo contribution on the trace(right).
+    direction: right
+    1. track thouth head's left edge, to find which node's value is smaller than pValue.
+    2. Update topo contribution on the trace(left).
+     */
+    public void modify(Node head, int pValue, HashMap<Node, Record> map, boolean direction) {
+        // setup
+        Stack<Node> stack = new Stack<>();
+        if (head == null) {
+            return;
+        }
+
+        Node cur = head;
+        Record rec = null;
+        int minus = 0;
+        // step 1
+        while ( cur != null && cur.value < pValue) {
+            stack.push(cur);
+            if (direction) {
+                cur = cur.right;
+            } else {
+                cur = cur.left;
+            }
+        }
+        if (cur != null) {
+            rec = map.get(cur);
+            minus = rec.l + rec.r + 1;
+            // step 2
+        } else {
+            minus = 0;
+        }
+        while (!stack.empty()) {
+            cur = stack.pop();
+            rec = map.get(cur);
+            if (direction) {
+                rec.r -= minus;
+            } else {
+                rec.l -= minus;
+            }
+            map.put(cur, rec);
+        }
+    }
+
+
+
 }

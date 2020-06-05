@@ -58,6 +58,9 @@ public class TreeOperations {
     }
 
     public int getMaxDepth(Node head) {
+        if (head == null) {
+            return 0;
+        }
         // setup
         int maxHeight = Integer.MIN_VALUE;
         int curLevel = 0;
@@ -109,5 +112,23 @@ public class TreeOperations {
         maxHeight = Math.max(maxHeight, curLevel);
         return maxHeight;
 
+    }
+
+    public boolean isBalancedTree(Node head) {
+        if (head == null) {
+            return true;
+        }
+        // posOrder
+        boolean lret = isBalancedTree(head.left);
+        boolean rret = isBalancedTree(head.right);
+
+        // base case
+        boolean ret = false;
+        int lh = getMaxDepth(head.left);
+        int rh = getMaxDepth(head.right);
+        if (Math.abs(lh - rh) <= 1) {
+            ret = true;
+        }
+        return (ret && lret && rret);
     }
 }
